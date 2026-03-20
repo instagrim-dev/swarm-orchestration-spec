@@ -14,6 +14,7 @@ A technical specification for environment-mediated and adaptive multi-agent orch
 | [02-adaptive-meta-orchestrator](spec/02-adaptive-meta-orchestrator.md) | Classifier, Shaper, Monitor; genome as parameterized orchestration; outer choreography |
 | [03-true-full-swarm](spec/03-true-full-swarm.md) | Stigmergic model: environment, local rules, agent loop, pseudo-code |
 | [04-human-interface](spec/04-human-interface.md) | Intent, seeding, observability, and control for "indirect coding" |
+| [05-signals-and-vocabulary](spec/05-signals-and-vocabulary.md) | Normative and extensible vocabulary: pheromone kinds, goal dimensions, genome fields |
 
 ## Audience
 

@@ -40,4 +40,4 @@ The meta-orchestrator is itself a choreography. States: classify → shape → e
 - `isolation`: shared | worktree
 - `coordinator_style`: none | central
 
-Implementations may extend with more dimensions.
+Implementations may extend with more dimensions. Canonical field names and extension policy are in **05-signals-and-vocabulary**.

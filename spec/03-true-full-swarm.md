@@ -39,6 +39,8 @@ loop until terminated:
 
 ## Local rules (same for all agents)
 
+Normative pheromone kinds (e.g. needs_review, high_priority, do_not_change) are defined in **05-signals-and-vocabulary**.
+
 - **Attraction:** go where pheromones say "work needed" (e.g. needs_review).
 - **Separation:** avoid locations already claimed or crowded.
 - **Cohesion:** stay near goal-relevant areas (relevance-to-goal from goal statement).

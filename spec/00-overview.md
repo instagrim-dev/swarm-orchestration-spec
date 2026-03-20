@@ -11,6 +11,7 @@ This specification describes:
 2. **Adaptive meta-orchestrator** — A mechanism to choose and adjust orchestration by parameterizing it (genome) rather than picking discrete patterns; Classifier, Shaper, Monitor, and outer choreography.
 3. **True full swarm** — A minimal model of stigmergic coordination: shared environment, local rules, no central task assigner, with pseudo-code.
 4. **Human interface** — How a developer interacts with swarm-style systems via intent, environment seeding, observability, and control ("indirect coding").
+5. **Signals and vocabulary** — Normative and extensible ontology for pheromone kinds, goal dimensions, and genome fields.
 
 The spec is implementation- and stack-agnostic. It does not prescribe APIs, languages, or storage.
 
@@ -26,3 +27,4 @@ The spec is implementation- and stack-agnostic. It does not prescribe APIs, lang
 2. **02-adaptive-meta-orchestrator** — How to select and mutate orchestration over time (optional layer above patterns).
 3. **03-true-full-swarm** — The minimal stigmergic model and pseudo-code.
 4. **04-human-interface** — How humans set goals, seed the environment, and observe/control.
+5. **05-signals-and-vocabulary** — Shared terms for pheromones, Classifier dimensions, and genome; extension policy.
