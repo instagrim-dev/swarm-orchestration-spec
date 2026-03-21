@@ -38,9 +38,11 @@ OUT=spec-permaweb-bundle.md
 rm -f spec-archive.zip
 zip -qr spec-archive.zip \
   README.md \
-  LICENSE \  annex-implementation-notes.md \
+  LICENSE \
+  annex-implementation-notes.md \
   annex-visualizations.md \
-  spec \  scripts/build-spec-artifacts.sh \
+  spec \
+  scripts/build-spec-artifacts.sh \
   -x '*/node_modules/*' \
   -x '*/dist/*' \
   -x '*.DS_Store'

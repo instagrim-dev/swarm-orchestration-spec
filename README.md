@@ -22,8 +22,6 @@ A technical specification for environment-mediated and adaptive multi-agent orch
 
 **Implementation notes (non-normative):** [annex-implementation-notes.md](annex-implementation-notes.md) maps the spec to BMO, Anthills, and Stigmera.
 
-
-
 **Visualizations (non-normative):** [annex-visualizations.md](annex-visualizations.md) — ASCII, Unicode, Mermaid, Graphviz, D2, PlantUML, Nomnoml, Structurizr DSL, Blockdiag, TikZ, SVG, tables.
 
 ## Audience
