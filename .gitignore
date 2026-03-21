@@ -9,6 +9,9 @@ Thumbs.db
 *.swo
 *~
 
+# Node (root workspace + examples)
+node_modules/
+
 # Misc
 *.log
 .env

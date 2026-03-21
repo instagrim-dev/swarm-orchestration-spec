@@ -32,7 +32,7 @@ No task list; no "agent 1 do X, agent 2 do Y."
 - **Pause / resume** — Freeze swarm; inspect env and code; resume.
 - **Override pheromones** — "Ignore this area" or "Focus only here" via config or one-shot nudge.
 - **Constraint change** — Update goal/scope/constraints; re-seed or restart.
-- **Accept / reject outcome** — Review diff or summary; accept or reject. Reject → re-run with different intent or add nudge.
+- **Accept / reject outcome** — Review diff or summary; accept or reject. Reject → re-run with different intent or add nudge. When the swarm stops with partial work done, see **06-failure-and-recovery** for representing outcome (env snapshot + goal status) so the human can accept, reject, or re-seed.
 
 ## Mental model
 

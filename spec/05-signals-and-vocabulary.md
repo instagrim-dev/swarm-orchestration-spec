@@ -27,7 +27,7 @@ Implementations that claim alignment with this spec should support at least thes
 
 Implementations may define additional pheromone kinds. To avoid collisions:
 
-- Use a prefix or namespace (e.g. `x-` for experimental, or an implementation-specific prefix such as `bmo-`, `openclaw-`).
+- Use a prefix or namespace (e.g. `x-` for experimental, or an implementation-specific prefix such as `bmo-`, `anthills-`).
 - Document custom kinds when describing spec alignment or interoperability.
 
 Normative kinds must not be redefined with different semantics.

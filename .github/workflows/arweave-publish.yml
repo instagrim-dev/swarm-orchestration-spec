@@ -1,0 +1,75 @@
+# Publishes the spec to Arweave via
+# https://github.com/marketplace/actions/arweave-publish
+#
+# The upstream action reads the document as UTF-8 text, so we emit one combined
+# Markdown bundle (not a binary tarball).
+#
+# Required repo secret: ARWEAVE_WALLET_KEY — full JSON contents of the Arweave keyfile.
+# Do not commit key material; add the secret under Settings → Secrets and variables → Actions.
+
+name: Publish spec to Arweave
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+env:
+  # Public Arweave address for the publishing wallet (safe to keep in-repo).
+  ARWEAVE_WALLET_ADDRESS: TId0Wix2KFl1gArtAT6Do1CbWU_0wneGvS5X9BfW5PE
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build single-file Markdown bundle (UTF-8)
+        run: |
+          OUT=spec-permaweb-bundle.md
+          {
+            echo "# Swarm Orchestration Spec — permaweb bundle"
+            echo ""
+            echo "Repository: ${{ github.repository }}"
+            echo "Ref: ${{ github.ref }}"
+            echo "SHA: ${{ github.sha }}"
+            echo "Built: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo ""
+            echo "---"
+            echo ""
+            for f in README.md annex-implementation-notes.md annex-visualizations.md; do
+              if [[ -f "$f" ]]; then
+                echo ""
+                echo "## Source file: \`$f\`"
+                echo ""
+                cat "$f"
+                echo ""
+                echo "---"
+              fi
+            done
+            for f in $(ls spec/*.md 2>/dev/null | sort); do
+              echo ""
+              echo "## Source file: \`$f\`"
+              echo ""
+              cat "$f"
+              echo ""
+              echo "---"
+            done
+          } > "$OUT"
+          wc -c "$OUT"
+
+      - name: Arweave publish
+        id: arweave
+        uses: verses-xyz/arweave-publish-action@v1.4
+        with:
+          wallet-address: ${{ env.ARWEAVE_WALLET_ADDRESS }}
+          wallet-key: ${{ secrets.ARWEAVE_WALLET_KEY }}
+          document-path: spec-permaweb-bundle.md
+
+      - name: Report transaction id
+        run: echo "Arweave txId: ${{ steps.arweave.outputs.txId }}"
