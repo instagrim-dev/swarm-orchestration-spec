@@ -1,11 +1,9 @@
-# Publishes the spec to Arweave via
-# https://github.com/marketplace/actions/arweave-publish
+# Publishes a UTF-8 Markdown bundle of the spec to Arweave (arweave.net).
 #
-# The upstream action reads the document as UTF-8 text, so we emit one combined
-# Markdown bundle (not a binary tarball).
+# Uses arweave-js on a current Node LTS instead of the deprecated
+# verses-xyz/arweave-publish-action (Node 16 / marketplace deprecation warnings).
 #
-# Required repo secret: ARWEAVE_WALLET_KEY — full JSON contents of the Arweave keyfile.
-# Do not commit key material; add the secret under Settings → Secrets and variables → Actions.
+# Required repo secret: ARWEAVE_WALLET_KEY — full JSON contents of the Arweave JWK.
 
 name: Publish spec to Arweave
 
@@ -16,7 +14,6 @@ on:
       - "v*"
 
 env:
-  # Public Arweave address for the publishing wallet (safe to keep in-repo).
   ARWEAVE_WALLET_ADDRESS: TId0Wix2KFl1gArtAT6Do1CbWU_0wneGvS5X9BfW5PE
 
 jobs:
@@ -28,6 +25,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
       - name: Build single-file Markdown bundle (UTF-8)
         run: |
@@ -63,14 +65,21 @@ jobs:
           } > "$OUT"
           wc -c "$OUT"
 
-      - name: Arweave publish
+      - name: Prepare Arweave client (isolated npm install)
+        working-directory: ${{ runner.temp }}/permaweb
+        run: |
+          npm init -y
+          npm install arweave@1.14.4
+          cp "${{ github.workspace }}/scripts/permaweb-upload.mjs" .
+
+      - name: Upload bundle to Arweave
         id: arweave
-        uses: verses-xyz/arweave-publish-action@v1.4
-        with:
-          wallet-address: ${{ env.ARWEAVE_WALLET_ADDRESS }}
-          wallet-key: ${{ secrets.ARWEAVE_WALLET_KEY }}
-          document-path: spec-permaweb-bundle.md
+        working-directory: ${{ runner.temp }}/permaweb
+        env:
+          ARWEAVE_WALLET_KEY: ${{ secrets.ARWEAVE_WALLET_KEY }}
+          EXPECTED_ARWEAVE_ADDRESS: ${{ env.ARWEAVE_WALLET_ADDRESS }}
+        run: node permaweb-upload.mjs "${{ github.workspace }}/spec-permaweb-bundle.md"
 
       - name: Report transaction id
         run: |
-          echo "Arweave txId: ${{ steps.arweave.outputs.txId }}"
+          echo "Arweave txId: ${{ steps.arweave.outputs.tx_id }}"

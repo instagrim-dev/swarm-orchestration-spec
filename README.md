@@ -36,19 +36,20 @@ Spec versions follow semantic-style versioning: **1.x** releases are additive (n
 
 ## Permaweb (Arweave)
 
-CI can mirror a single UTF-8 Markdown bundle of this repo to Arweave using the [Arweave Publish](https://github.com/marketplace/actions/arweave-publish) action (`.github/workflows/arweave-publish.yml`).
+CI uploads a single UTF-8 Markdown bundle (`spec-permaweb-bundle.md`) to **arweave.net** via [arweave-js](https://github.com/ArweaveTeam/arweave-js) and [`scripts/permaweb-upload.mjs`](scripts/permaweb-upload.mjs) (see `.github/workflows/arweave-publish.yml`).
 
 **Setup**
 
-1. Create a repository secret **`ARWEAVE_WALLET_KEY`** — paste the **entire JSON** contents of your Arweave wallet keyfile. Never commit this file.
-2. The workflow uses the public publisher address `TId0Wix2KFl1gArtAT6Do1CbWU_0wneGvS5X9BfW5PE` (override in the workflow if you change wallets).
+1. Create a repository secret **`ARWEAVE_WALLET_KEY`** — paste the **entire JSON** contents of your Arweave wallet keyfile (JWK). Never commit this file.
+2. The workflow checks that the JWK matches the public address `TId0Wix2KFl1gArtAT6Do1CbWU_0wneGvS5X9BfW5PE` (change both the secret and `ARWEAVE_WALLET_ADDRESS` in the workflow if you switch wallets).
+3. The publishing wallet needs enough **AR** to pay the transaction fee.
 
 **Triggers**
 
 - Manual: Actions → *Publish spec to Arweave* → Run workflow.
 - Pushing a tag matching `v*` also runs the workflow.
 
-The job log prints **`Arweave txId:`** after a successful upload. Third-party actions are not certified by GitHub; review [verses-xyz/arweave-publish-action](https://github.com/verses-xyz/arweave-publish-action) before relying on it.
+The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance.
 
 ## License
 
