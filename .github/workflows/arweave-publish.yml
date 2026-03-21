@@ -65,9 +65,12 @@ jobs:
           } > "$OUT"
           wc -c "$OUT"
 
+      # Actions does not create working-directory; mkdir before any step uses it.
       - name: Prepare Arweave client (isolated npm install)
-        working-directory: ${{ runner.temp }}/permaweb
         run: |
+          PERMAWEB_DIR="${{ runner.temp }}/permaweb"
+          mkdir -p "$PERMAWEB_DIR"
+          cd "$PERMAWEB_DIR"
           npm init -y
           npm install arweave@1.14.4
           cp "${{ github.workspace }}/scripts/permaweb-upload.mjs" .
