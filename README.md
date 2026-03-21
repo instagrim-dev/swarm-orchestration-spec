@@ -49,7 +49,7 @@ CI uploads a single UTF-8 Markdown bundle (`spec-permaweb-bundle.md`) to **arwea
 - Manual: Actions → *Publish spec to Arweave* → Run workflow.
 - Pushing a tag matching `v*` also runs the workflow.
 
-The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance. A **`400 Transaction verification failed`** response from the gateway is often fixed by signing with **PSS salt length 32** (handled in `scripts/permaweb-upload.mjs`); use a current **arweave-js** (see workflow).
+The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance (the script logs **winston** balance). The upload script strips a leading **UTF-8 BOM** and optional outer quotes from the JWK secret, tries **`ar-io.net`** then **`arweave.net`**, and retries **PSS salt** lengths **32** and the RSA-max salt for your key—**`400 Transaction verification failed`** can still appear if the wallet has no AR for fees or the network rejects a specific gateway; see the workflow log lines **`Posted via …`** / **`Attempt failed:`**.
 
 ## License
 
