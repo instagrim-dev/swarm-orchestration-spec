@@ -49,7 +49,7 @@ CI uploads a single UTF-8 Markdown bundle (`spec-permaweb-bundle.md`) to **arwea
 - Manual: Actions → *Publish spec to Arweave* → Run workflow.
 - Pushing a tag matching `v*` also runs the workflow.
 
-The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance (the script logs **winston** balance). The upload script strips a leading **UTF-8 BOM** and optional outer quotes from the JWK secret, tries **`ar-io.net`** then **`arweave.net`**, and retries **PSS salt** lengths **32** and the RSA-max salt for your key—**`400 Transaction verification failed`** can still appear if the wallet has no AR for fees or the network rejects a specific gateway; see the workflow log lines **`Posted via …`** / **`Attempt failed:`**.
+The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance (the script logs **winston** balance). The upload script strips a leading **UTF-8 BOM** and optional outer quotes from the JWK secret, tries **`arweave.net`** then **`www.arweave.net`** (optional **`ARWEAVE_HOST`** first if you set one that resolves on your runner), and retries **PSS salt** lengths **32** and the RSA-max salt for your key—**`400 Transaction verification failed`** can still appear if the wallet has no AR for fees or the network rejects a specific gateway; see **`Posted via …`** / **`Attempt failed:`** in the log.
 
 ## License
 

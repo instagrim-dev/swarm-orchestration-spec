@@ -4,12 +4,11 @@
  * Env:
  *   ARWEAVE_WALLET_KEY — JWK JSON string (GitHub secret). BOM / outer quotes stripped.
  *   EXPECTED_ARWEAVE_ADDRESS — optional; if set, must match the address derived from the JWK.
- *   ARWEAVE_HOST — optional gateway hostname (default: ar-io.net).
+ *   ARWEAVE_HOST — optional extra gateway to try first (must DNS-resolve on your runner).
  *   GITHUB_OUTPUT — set by Actions; tx_id is written for downstream steps.
  *
- * Tries ar-io.net first (recommended in current tooling docs), then arweave.net, and
- * retries PSS salt lengths 32 and RSA-max for 4096-bit keys. Node-local verify can pass
- * while gateways reject; multiple combinations match what different verifiers expect.
+ * Default gateways: arweave.net, then www.arweave.net. (Do not use ar-io.net here — it
+ * often fails with ENOTFOUND on GitHub-hosted runners.) Retries PSS salt 32 and RSA-max.
  */
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -77,8 +76,10 @@ try {
   process.exit(1);
 }
 
-const primaryHost = process.env.ARWEAVE_HOST || 'ar-io.net';
-const hosts = [...new Set([primaryHost, 'ar-io.net', 'arweave.net'])];
+const defaultHosts = ['arweave.net', 'www.arweave.net'];
+const hosts = process.env.ARWEAVE_HOST
+  ? [...new Set([process.env.ARWEAVE_HOST.trim(), ...defaultHosts])]
+  : [...defaultHosts];
 const saltLengths = [
   32,
   maxPssSaltBytes(key.n),
@@ -86,8 +87,9 @@ const saltLengths = [
 
 const data = new Uint8Array(readFileSync(filePath));
 
-const ar0 = makeArweave(hosts[0]);
-const derived = await ar0.wallets.jwkToAddress(key);
+// Always resolve address against a known-resolving host (not hosts[0], which may be invalid).
+const arBase = makeArweave('arweave.net');
+const derived = await arBase.wallets.jwkToAddress(key);
 const expected = process.env.EXPECTED_ARWEAVE_ADDRESS;
 if (expected && derived !== expected) {
   console.error(
@@ -97,7 +99,7 @@ if (expected && derived !== expected) {
 }
 
 try {
-  const bal = await ar0.wallets.getBalance(derived);
+  const bal = await arBase.wallets.getBalance(derived);
   console.log('Wallet balance (winston):', bal);
 } catch (e) {
   console.warn('Could not fetch wallet balance:', e?.message ?? e);
