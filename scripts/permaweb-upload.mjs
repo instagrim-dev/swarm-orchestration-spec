@@ -46,12 +46,22 @@ if (expected && derived !== expected) {
   process.exit(1);
 }
 
-const data = readFileSync(filePath);
+// Copy into a plain Uint8Array (Buffer subclasses Uint8Array but be explicit).
+const data = new Uint8Array(readFileSync(filePath));
 const tx = await arweave.createTransaction({ data }, key);
 tx.addTag('Content-Type', 'text/markdown; charset=UTF-8');
 tx.addTag('App-Name', 'swarm-orchestration-spec');
 
-await arweave.transactions.sign(tx, key);
+// Arweave expects RSA-PSS with a 32-byte salt; Node's default salt length can differ
+// and gateways return "Transaction verification failed" (400).
+await arweave.transactions.sign(tx, key, { saltLength: 32 });
+
+const locallyOk = await arweave.transactions.verify(tx);
+if (!locallyOk) {
+  console.error('Local signature verify failed; check JWK and arweave-js version.');
+  process.exit(1);
+}
+
 const response = await arweave.transactions.post(tx);
 
 if (response.status !== 200 && response.status !== 208) {

@@ -73,7 +73,7 @@ jobs:
           mkdir -p "$PERMAWEB_DIR"
           cd "$PERMAWEB_DIR"
           npm init -y
-          npm install arweave@1.14.4
+          npm install arweave@1.15.7
           cp "${{ github.workspace }}/scripts/permaweb-upload.mjs" .
 
       - name: Upload bundle to Arweave

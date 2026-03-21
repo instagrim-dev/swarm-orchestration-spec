@@ -49,7 +49,7 @@ CI uploads a single UTF-8 Markdown bundle (`spec-permaweb-bundle.md`) to **arwea
 - Manual: Actions → *Publish spec to Arweave* → Run workflow.
 - Pushing a tag matching `v*` also runs the workflow.
 
-The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance.
+The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance. A **`400 Transaction verification failed`** response from the gateway is often fixed by signing with **PSS salt length 32** (handled in `scripts/permaweb-upload.mjs`); use a current **arweave-js** (see workflow).
 
 ## License
 
