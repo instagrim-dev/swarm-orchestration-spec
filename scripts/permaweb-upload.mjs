@@ -1,5 +1,5 @@
 /**
- * Upload a file to Arweave. Used by .github/workflows/arweave-publish.yml.
+ * Upload a file to Arweave (optional manual / local tool; no default CI workflow).
  *
  * Env:
  *   ARWEAVE_WALLET_KEY — JWK JSON string (GitHub secret). BOM / outer quotes stripped.

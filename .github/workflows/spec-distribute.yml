@@ -1,10 +1,9 @@
-# Mirrors the spec to every automated channel we support:
+# Mirrors the spec to automated channels we support:
 # - GitHub Release (on version tags v*)
 # - IPFS via Pinata (optional secret PINATA_JWT)
 # - Internet Archive (optional secrets IA_ACCESS_KEY, IA_SECRET_KEY)
 #
 # One-time (not in CI): Zenodo GitHub integration → archives each GitHub Release (DOI).
-# Arweave: separate workflow `.github/workflows/arweave-publish.yml` (needs AR balance).
 
 name: Distribute spec
 
