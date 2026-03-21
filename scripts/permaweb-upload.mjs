@@ -9,6 +9,11 @@
  *
  * Default gateways: arweave.net, then www.arweave.net. (Do not use ar-io.net here — it
  * often fails with ENOTFOUND on GitHub-hosted runners.) Retries PSS salt 32 and RSA-max.
+ *
+ * If balance is below the network price for this payload, the script exits before POST.
+ * A zero balance often produces misleading gateway errors like "Transaction verification failed".
+ *
+ * Set SKIP_BALANCE_CHECK=1 only if you intentionally bypass the preflight (not recommended).
  */
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -98,11 +103,37 @@ if (expected && derived !== expected) {
   process.exit(1);
 }
 
+let balanceStr = null;
 try {
-  const bal = await arBase.wallets.getBalance(derived);
-  console.log('Wallet balance (winston):', bal);
+  balanceStr = await arBase.wallets.getBalance(derived);
+  console.log('Wallet balance (winston):', balanceStr);
 } catch (e) {
   console.warn('Could not fetch wallet balance:', e?.message ?? e);
+}
+
+if (process.env.SKIP_BALANCE_CHECK !== '1' && balanceStr !== null) {
+  try {
+    const priceStr = await arBase.transactions.getPrice(data.byteLength);
+    const price = BigInt(priceStr);
+    // Headroom for tags + fee drift (reward is derived from size; network can be picky).
+    const needed = (price * 120n) / 100n + 1n;
+    const bal = BigInt(balanceStr);
+    if (bal < needed) {
+      console.error(
+        [
+          'Insufficient AR to pay the transaction reward.',
+          `  Address: ${derived}`,
+          `  Balance: ${balanceStr} winston`,
+          `  Estimated minimum for this upload (~120% of size price): ${needed.toString()} winston`,
+          'Send AR to this address (exchange / bridge / faucet), wait for confirmation, then re-run.',
+          'Gateways sometimes return "Transaction verification failed" (400) when the wallet cannot pay — that is misleading.',
+        ].join('\n'),
+      );
+      process.exit(1);
+    }
+  } catch (e) {
+    console.warn('Could not preflight price check; continuing anyway:', e?.message ?? e);
+  }
 }
 
 let lastErr = '';

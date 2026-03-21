@@ -42,7 +42,7 @@ CI uploads a single UTF-8 Markdown bundle (`spec-permaweb-bundle.md`) to **arwea
 
 1. Create a repository secret **`ARWEAVE_WALLET_KEY`** — paste the **entire JSON** contents of your Arweave wallet keyfile (JWK). Never commit this file.
 2. The workflow checks that the JWK matches `ARWEAVE_WALLET_ADDRESS` in `.github/workflows/arweave-publish.yml` (currently `-KIUv_cHtZfbHywqFQ-6Rf7CYzl_99YqNj1nde4uFxQ`). If you use a different key in the secret, update that env value to the matching address or replace the secret with the JWK for the address you want.
-3. The publishing wallet needs enough **AR** to pay the transaction fee.
+3. **Fund the wallet with AR** (on-chain balance in **winston**). The upload script compares balance to the network **price** for your bundle and exits with a clear error if funds are short. A **0** balance often causes gateways to return **`400 Transaction verification failed`**, which is easy to misread—fund the address first, then re-run the workflow.
 
 **Triggers**
 
