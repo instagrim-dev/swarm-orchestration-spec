@@ -51,6 +51,21 @@ CI uploads a single UTF-8 Markdown bundle (`spec-permaweb-bundle.md`) to **arwea
 
 The job log prints **`Arweave txId:`** after a successful upload. If a run fails immediately, check the secret name, JWK format, address mismatch, or wallet balance (the script logs **winston** balance). The upload script strips a leading **UTF-8 BOM** and optional outer quotes from the JWK secret, tries **`arweave.net`** then **`www.arweave.net`** (optional **`ARWEAVE_HOST`** first if you set one that resolves on your runner), and retries **PSS salt** lengths **32** and the RSA-max salt for your key—**`400 Transaction verification failed`** can still appear if the wallet has no AR for fees or the network rejects a specific gateway; see **`Posted via …`** / **`Attempt failed:`** in the log.
 
+## Distribute spec (multi-channel)
+
+Artifacts are built by [`scripts/build-spec-artifacts.sh`](scripts/build-spec-artifacts.sh): **`spec-permaweb-bundle.md`** (single Markdown) and **`spec-archive.zip`** (repo slice without `node_modules`).
+
+| Channel | Workflow / trigger | What you do |
+|--------|-------------------|-------------|
+| **GitHub** | Source + tags | Already here. |
+| **GitHub Release** | [`.github/workflows/spec-distribute.yml`](.github/workflows/spec-distribute.yml) on **`v*`** tags | Push `v1.0.0` etc. Release attaches the bundle + zip. |
+| **Zenodo (DOI)** | Zenodo ↔ GitHub hook | [Enable the GitHub integration](https://docs.zenodo.org/en/latest/integrations/github/index.html) once; Zenodo mints a DOI per **GitHub Release**. |
+| **IPFS** | Same `spec-distribute` job | Add repo secret **`PINATA_JWT`** ([Pinata](https://pinata.cloud/) JWT with file upload). Job pins `spec-permaweb-bundle.md` and prints **CID** + `ipfs.io` link in the job summary. |
+| **Internet Archive** | Same workflow | Add secrets **`IA_ACCESS_KEY`** and **`IA_SECRET_KEY`** from [archive.org S3-like keys](https://archive.org/account/s3.php). Uploads `spec-archive.zip` (identifier `swarm-orchestration-spec-<tag>` or `…-run-<id>`). |
+| **Arweave** | [`.github/workflows/arweave-publish.yml`](.github/workflows/arweave-publish.yml) | Fund wallet + `ARWEAVE_WALLET_KEY` (see above). |
+
+**Manual run:** Actions → **Distribute spec** → *Run workflow* (builds artifacts; IPFS / IA run if secrets exist; **GitHub Release** only runs on **`v*`** tag pushes, not on manual dispatch).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

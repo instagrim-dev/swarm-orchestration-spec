@@ -12,6 +12,10 @@ Thumbs.db
 # Node (root workspace + examples)
 node_modules/
 
+# Local spec build outputs (CI generates these)
+spec-permaweb-bundle.md
+spec-archive.zip
+
 # Misc
 *.log
 .env

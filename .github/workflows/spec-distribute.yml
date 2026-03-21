@@ -1,0 +1,137 @@
+# Mirrors the spec to every automated channel we support:
+# - GitHub Release (on version tags v*)
+# - IPFS via Pinata (optional secret PINATA_JWT)
+# - Internet Archive (optional secrets IA_ACCESS_KEY, IA_SECRET_KEY)
+#
+# One-time (not in CI): Zenodo GitHub integration → archives each GitHub Release (DOI).
+# Arweave: separate workflow `.github/workflows/arweave-publish.yml` (needs AR balance).
+
+name: Distribute spec
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build bundle and zip
+        run: bash scripts/build-spec-artifacts.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-dist
+          path: |
+            spec-permaweb-bundle.md
+            spec-archive.zip
+
+  github-release:
+    needs: build
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-dist
+          path: dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/spec-permaweb-bundle.md
+            dist/spec-archive.zip
+          generate_release_notes: true
+
+  pinata-ipfs:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-dist
+          path: dist
+
+      - name: Pin bundle on IPFS (Pinata)
+        id: pinata
+        env:
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
+        run: |
+          if [ -z "$PINATA_JWT" ]; then
+            echo "PINATA_JWT not set — skip IPFS (add secret to enable)."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          RESP="$(curl -sS -X POST "https://uploads.pinata.cloud/v3/files" \
+            -H "Authorization: Bearer ${PINATA_JWT}" \
+            -F "file=@dist/spec-permaweb-bundle.md" \
+            -F "network=public")"
+          echo "$RESP" | head -c 2000
+          CID="$(echo "$RESP" | jq -r '.data.cid // .cid // empty')"
+          if [ -z "$CID" ] || [ "$CID" = "null" ]; then
+            echo "::error::Pinata upload failed (no CID). See response above."
+            exit 1
+          fi
+          echo "IPFS (via Pinata) CID: $CID"
+          echo "Gateway: https://ipfs.io/ipfs/$CID"
+          echo "ipfs_cid=$CID" >> "$GITHUB_OUTPUT"
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+          {
+            echo "### IPFS (Pinata)"
+            echo "- **CID:** \`$CID\`"
+            echo "- https://ipfs.io/ipfs/$CID"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  internet-archive:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-dist
+          path: dist
+
+      - name: Upload to Internet Archive
+        env:
+          IA_ACCESS_KEY: ${{ secrets.IA_ACCESS_KEY }}
+          IA_SECRET_KEY: ${{ secrets.IA_SECRET_KEY }}
+        run: |
+          if [ -z "$IA_ACCESS_KEY" ] || [ -z "$IA_SECRET_KEY" ]; then
+            echo "IA_ACCESS_KEY / IA_SECRET_KEY not set — skip Internet Archive."
+            exit 0
+          fi
+          mkdir -p ~/.config
+          printf '%s\n' '[s3]' "access = ${IA_ACCESS_KEY}" "secret = ${IA_SECRET_KEY}" > ~/.config/ia.ini
+          python3 -m pip install --user --quiet internetarchive
+          export PATH="$HOME/.local/bin:$PATH"
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            IA_ID="swarm-orchestration-spec-${{ github.ref_name }}"
+          else
+            IA_ID="swarm-orchestration-spec-run-${{ github.run_id }}"
+          fi
+          echo "Identifier: $IA_ID"
+          ia upload "$IA_ID" dist/spec-archive.zip \
+            --metadata="mediatype:software" \
+            --metadata="title:Swarm Orchestration Spec bundle" \
+            --metadata="description:Technical spec (zip) from GitHub instagrim-dev/swarm-orchestration-spec ref ${{ github.ref }} sha ${{ github.sha }}" \
+            --metadata="scanner:GitHub Actions" \
+            --retries 5
+          {
+            echo "### Internet Archive"
+            echo "- https://archive.org/details/$IA_ID"
+          } >> "$GITHUB_STEP_SUMMARY"

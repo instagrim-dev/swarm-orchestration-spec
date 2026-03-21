@@ -33,38 +33,11 @@ jobs:
           node-version: "22"
 
       - name: Build single-file Markdown bundle (UTF-8)
-        run: |
-          OUT=spec-permaweb-bundle.md
-          {
-            echo "# Swarm Orchestration Spec — permaweb bundle"
-            echo ""
-            echo "Repository: ${{ github.repository }}"
-            echo "Ref: ${{ github.ref }}"
-            echo "SHA: ${{ github.sha }}"
-            echo "Built: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo ""
-            echo "---"
-            echo ""
-            for f in README.md annex-implementation-notes.md annex-visualizations.md; do
-              if [[ -f "$f" ]]; then
-                echo ""
-                echo "## Source file: \`$f\`"
-                echo ""
-                cat "$f"
-                echo ""
-                echo "---"
-              fi
-            done
-            for f in $(ls spec/*.md 2>/dev/null | sort); do
-              echo ""
-              echo "## Source file: \`$f\`"
-              echo ""
-              cat "$f"
-              echo ""
-              echo "---"
-            done
-          } > "$OUT"
-          wc -c "$OUT"
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: bash scripts/build-spec-artifacts.sh
 
       # Actions does not create working-directory; mkdir before any step uses it.
       - name: Prepare Arweave client (isolated npm install)
