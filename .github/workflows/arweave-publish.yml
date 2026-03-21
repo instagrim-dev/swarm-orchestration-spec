@@ -72,4 +72,5 @@ jobs:
           document-path: spec-permaweb-bundle.md
 
       - name: Report transaction id
-        run: echo "Arweave txId: ${{ steps.arweave.outputs.txId }}"
+        run: |
+          echo "Arweave txId: ${{ steps.arweave.outputs.txId }}"
