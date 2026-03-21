@@ -41,7 +41,7 @@ CI uploads a single UTF-8 Markdown bundle (`spec-permaweb-bundle.md`) to **arwea
 **Setup**
 
 1. Create a repository secret **`ARWEAVE_WALLET_KEY`** — paste the **entire JSON** contents of your Arweave wallet keyfile (JWK). Never commit this file.
-2. The workflow checks that the JWK matches the public address `TId0Wix2KFl1gArtAT6Do1CbWU_0wneGvS5X9BfW5PE` (change both the secret and `ARWEAVE_WALLET_ADDRESS` in the workflow if you switch wallets).
+2. The workflow checks that the JWK matches `ARWEAVE_WALLET_ADDRESS` in `.github/workflows/arweave-publish.yml` (currently `-KIUv_cHtZfbHywqFQ-6Rf7CYzl_99YqNj1nde4uFxQ`). If you use a different key in the secret, update that env value to the matching address or replace the secret with the JWK for the address you want.
 3. The publishing wallet needs enough **AR** to pay the transaction fee.
 
 **Triggers**

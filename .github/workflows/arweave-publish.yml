@@ -14,7 +14,8 @@ on:
       - "v*"
 
 env:
-  ARWEAVE_WALLET_ADDRESS: TId0Wix2KFl1gArtAT6Do1CbWU_0wneGvS5X9BfW5PE
+  # Must match the address derived from repository secret ARWEAVE_WALLET_KEY.
+  ARWEAVE_WALLET_ADDRESS: -KIUv_cHtZfbHywqFQ-6Rf7CYzl_99YqNj1nde4uFxQ
 
 jobs:
   publish:
