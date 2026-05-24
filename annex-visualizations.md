@@ -2,7 +2,7 @@
 
 This annex is **non-normative**. It mixes ASCII, Unicode, **Mermaid**, **Graphviz DOT**, **D2**, **PlantUML**, **Nomnoml**, and **inline SVG**, plus tables. **Mermaid** and **SVG** render on GitHub. **DOT** → Graphviz (`dot -Tsvg`). **D2** → [d2lang.com](https://d2lang.com). **PlantUML** → [Kroki](https://kroki.io), [plantuml.com](https://www.plantuml.com/plantuml), or IDE. **Nomnoml** → [nomnoml.com](https://nomnoml.com) (paste fenced source).
 
-Diagrams below may still label **pheromone** / **PheromoneMap** from spec v1.0. For v1.1 normative terms, see [05-signals-and-vocabulary](spec/05-signals-and-vocabulary.md) (signal map, zone, mortality).
+Terminology matches spec v1.1 ([05-signals-and-vocabulary](spec/05-signals-and-vocabulary.md): signal map, zone, mortality).
 
 ---
 
@@ -12,7 +12,7 @@ Diagrams below may still label **pheromone** / **PheromoneMap** from spec v1.0. 
   YOU                         THE FIELD                    THE ANTS (optional)
   ═══                         ═════════                    ═══════════════════
 
-  goal: "tests green"    →    pheromones, claims      ←    sense → act → deposit
+  goal: "tests green"    →    signals, claims      ←    sense → act → deposit
   scope: pkg/ only           repo snapshot                 (same loop, N copies)
   constraints: no API
 
@@ -27,7 +27,7 @@ Diagrams below may still label **pheromone** / **PheromoneMap** from spec v1.0. 
                     ┌────────────────────────────────────┐
                     │           ENVIRONMENT              │
                     │  ┌──────────┐ ┌──────────┐         │
-                    │  │Pheromone │ │  Claims  │         │
+                    │  │Signal │ │  Claims  │         │
                     │  │   Map    │ │ loc→TTL  │         │
                     │  └────┬─────┘ └────┬─────┘         │
                     │       │            │               │
@@ -127,13 +127,13 @@ flowchart LR
 │  chose pkg/foo.go · needs_review=0.82 · no competing claim              │
 │  deposited pkg/foo.go · kind=fixed · strength=0.6                       │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Status: RUNNING · Goal: not met · Quiet: 12s · Predicates: tests, pheromone│
+│ Status: RUNNING · Goal: not met · Quiet: 12s · Predicates: tests, signal│
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 7. Pheromone “map” as file tree (ASCII)
+## 7. Signal “map” as file tree (ASCII)
 
 ```
 repo/
@@ -222,7 +222,7 @@ sequenceDiagram
     participant A as Agent
     participant R as RepoSnapshot worker
     A->>E: Sense(agentID)
-    E-->>A: view pheromones claims
+    E-->>A: view signals claims
     R->>E: refresh tests/lint
     A->>A: ChooseWork(view)
     A->>E: TryClaim(loc, TTL)
@@ -300,14 +300,14 @@ digraph EnvStack {
   subgraph cluster_env {
     label="Environment (shared)";
     style=dashed;
-    PM [label="PheromoneMap\n(location, kind) → strength"];
-    CL [label="Claims\nlocation → agent, TTL"];
+    PM [label="SignalMap\n(zone, kind) → strength"];
+    CL [label="Claims\nzone → actor, TTL"];
     RS [label="RepoSnapshot\nread-only: tests, lint, git"];
   }
 
   A1 [label="Agent A"];
   A2 [label="Agent B"];
-  BG [label="Background\nEvaporate + refresh"];
+  BG [label="Background\nExpire + refresh"];
 
   A1 -> PM [label="sense, deposit", dir=both];
   A2 -> PM [label="sense, deposit", dir=both];
@@ -340,7 +340,7 @@ Renders in GitHub-flavored Markdown as vector graphics.
   <rect x="40" y="100" width="340" height="100" rx="8" fill="#f5f5f5" stroke="#666" stroke-width="1.2"/>
   <text x="210" y="118" text-anchor="middle" font-weight="600">Environment</text>
   <rect x="55" y="128" width="95" height="58" rx="4" fill="#fff" stroke="#888"/>
-  <text x="102" y="150" text-anchor="middle" font-size="10">Pheromone</text>
+  <text x="102" y="150" text-anchor="middle" font-size="10">Signal</text>
   <text x="102" y="165" text-anchor="middle" font-size="10">Map</text>
   <rect x="162" y="128" width="95" height="58" rx="4" fill="#fff" stroke="#888"/>
   <text x="209" y="150" text-anchor="middle" font-size="10">Claims</text>
@@ -410,7 +410,7 @@ erDiagram
     IMPLEMENTATION ||--|{ REQUIRED_SURFACE : must_provide
     IMPLEMENTATION ||--o{ OPTIONAL_SURFACE : may_provide
     REQUIRED_SURFACE {
-        string pheromone_claims_repo_snapshot
+        string signal_claims_repo_snapshot
         string sense_choose_claim_do_deposit_release
         string goal_scope_constraints
     }
@@ -443,7 +443,7 @@ package "Human" #E3F2FD {
 }
 
 package "Shared environment" #E8F5E9 {
-  database "PheromoneMap" as PM
+  database "SignalMap" as PM
   database "Claims" as CL
   file "RepoSnapshot" as RS
 }
@@ -522,16 +522,16 @@ Paste into [nomnoml.com](https://nomnoml.com). Association-style UML sketch.
   statement
   predicates]
 
-[<interface>Location|
+[<interface>Zone|
   path or symbol]
 
 [Environment|]
-[Environment] +-> [<env>PheromoneMap]
+[Environment] +-> [<env>SignalMap]
 [Environment] +-> [<env>Claims]
 [Environment] +-> [<env>RepoSnapshot]
 
-[PheromoneMap| entries: Location x Kind -> strength time]
-[Claims| entries: Location -> agent deadline]
+[SignalMap| entries: Zone x Kind -> strength expires_at]
+[Claims| entries: Zone -> actor expires_at]
 [RepoSnapshot| tests lint git status read-only]
 
 [Agent| id]
@@ -564,7 +564,7 @@ digraph Runtime {
     style=filled;
     bgcolor="#E8F5E9";
     margin=12;
-    PM [label="PheromoneMap", shape=component, style=filled, fillcolor=white];
+    PM [label="SignalMap", shape=component, style=filled, fillcolor=white];
     CL [label="Claims", shape=component, style=filled, fillcolor=white];
     RS [label="RepoSnapshot", shape=component, style=filled, fillcolor=white];
   }
@@ -605,15 +605,15 @@ classDiagram
     }
     class Environment {
         +sense(agentId) View
-        +deposit(loc, kind, amount)
-        +tryClaim(loc, agentId, ttl) bool
-        +release(loc, agentId)
+        +deposit(zone, kind, strength, ttl)
+        +acquire(zone, actorId, ttl) bool
+        +release(zone, actorId)
     }
-    class PheromoneMap {
+    class SignalMap {
         +entries LocKind to Strength
     }
     class Claims {
-        +entries Location to Lease
+        +entries Zone to Lease
     }
     class RepoSnapshot {
         +TestStatus tests
@@ -623,7 +623,7 @@ classDiagram
         +string id
         +runLoop()
     }
-    Environment *-- PheromoneMap
+    Environment *-- SignalMap
     Environment *-- Claims
     Environment *-- RepoSnapshot
     Agent --> Environment : reads writes
@@ -649,7 +649,7 @@ Three lanes under a shared **Environment** band; curved arrows suggest concurren
   </defs>
   <rect x="20" y="16" width="480" height="44" rx="8" fill="url(#envGrad)" stroke="#2e7d32" stroke-width="1.2"/>
   <text x="260" y="32" text-anchor="middle" font-weight="700" font-size="11">Shared environment</text>
-  <text x="260" y="48" text-anchor="middle" fill="#1b5e20">PheromoneMap · Claims · RepoSnapshot</text>
+  <text x="260" y="48" text-anchor="middle" fill="#1b5e20">SignalMap · Claims · RepoSnapshot</text>
   <line x1="20" y1="72" x2="500" y2="72" stroke="#bbb" stroke-dasharray="4 3"/>
 
   <rect x="30" y="88" width="140" height="190" rx="6" fill="#fafafa" stroke="#999"/>
@@ -786,7 +786,7 @@ workspace {
         u = person "Developer"
         s = softwareSystem "Swarm orchestration" {
             intent = container "Intent" "Goal, scope, constraints"
-            env = container "Environment" "PheromoneMap, Claims, RepoSnapshot"
+            env = container "Environment" "SignalMap, Claims, RepoSnapshot"
             agents = container "Agents" "N homogeneous loops"
             intent -> env "seed, nudge"
             agents -> env "sense, claim, deposit, release"
@@ -818,7 +818,7 @@ blockdiag {
   group env {
     label = "Environment";
     color = "#E8F5E9";
-    PM [label = "PheromoneMap"];
+    PM [label = "SignalMap"];
     CL [label = "Claims"];
     RS [label = "RepoSnapshot"];
   }
