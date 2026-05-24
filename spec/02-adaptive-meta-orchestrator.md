@@ -1,7 +1,7 @@
 # Adaptive Meta-Orchestrator
 
-**Document version:** 1.0  
-**Date:** 2025-03-15
+**Document version:** 1.1  
+**Date:** 2026-05-24
 
 ## Purpose
 

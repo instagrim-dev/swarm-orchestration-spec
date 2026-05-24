@@ -1,7 +1,7 @@
 # Taxonomy and Patterns
 
-**Document version:** 1.0  
-**Date:** 2025-03-15
+**Document version:** 1.1  
+**Date:** 2026-05-24
 
 ## Existing (pre-swarm) patterns
 
@@ -24,8 +24,8 @@ Cross-cutting: choreography (state machine, tool gates), worktree isolation, per
 
 ### 2. Colony (stigmergic)
 
-- No central coordinator; pheromone trails (weighted annotations) guide behavior.
-- Agents sense environment (diffs, tests, lint) and self-select work; evaporation for decay.
+- No central coordinator; signal deposits (weighted annotations in zones) guide behavior.
+- Agents sense environment (diffs, tests, lint) and self-select work; mortality for decay.
 - Distinction: resolution by environmental state, not by declared capability.
 
 ### 3. Flock (emergent alignment)
@@ -53,9 +53,9 @@ Cross-cutting: choreography (state machine, tool gates), worktree isolation, per
 
 | Dimension | Central (Spawn/Teams) | Colony/Flock | Swarm proper | Ecosystem |
 |-----------|----------------------|--------------|--------------|-----------|
-| Coordinator | Parent/lead | None (stigmergy/local rules) | Decomposer + merger | Reactive triggers |
+| Coordinator | Parent/lead | None (environment-mediated/local rules) | Decomposer + merger | Reactive triggers |
 | Task allocation | Explicit / queue claim | Self-selected by sensing | Pre-assigned 1:1 | Trigger-activated |
 | Communication | Poll / queue / DM | Environment mutation / heartbeat | None (merge at end) | Event triggers |
-| Conflict handling | Lead/queue | Pheromone / separation rule | Merge reconciler | Competition + selection |
+| Conflict handling | Lead/queue | Signal strength / separation rule | Merge reconciler | Competition + selection |
 
 See in-repo or external spreadsheets for full matrix if maintained.

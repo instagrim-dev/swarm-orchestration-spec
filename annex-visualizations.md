@@ -2,6 +2,8 @@
 
 This annex is **non-normative**. It mixes ASCII, Unicode, **Mermaid**, **Graphviz DOT**, **D2**, **PlantUML**, **Nomnoml**, and **inline SVG**, plus tables. **Mermaid** and **SVG** render on GitHub. **DOT** → Graphviz (`dot -Tsvg`). **D2** → [d2lang.com](https://d2lang.com). **PlantUML** → [Kroki](https://kroki.io), [plantuml.com](https://www.plantuml.com/plantuml), or IDE. **Nomnoml** → [nomnoml.com](https://nomnoml.com) (paste fenced source).
 
+Diagrams below may still label **pheromone** / **PheromoneMap** from spec v1.0. For v1.1 normative terms, see [05-signals-and-vocabulary](spec/05-signals-and-vocabulary.md) (signal map, zone, mortality).
+
 ---
 
 ## 1. Mental model: three layers (ASCII)

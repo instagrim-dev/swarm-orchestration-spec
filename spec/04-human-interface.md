@@ -1,7 +1,7 @@
 # Human Interface ("Indirect Coding")
 
-**Document version:** 1.0  
-**Date:** 2025-03-15
+**Document version:** 1.1  
+**Date:** 2026-05-24
 
 ## Design goal
 
@@ -19,18 +19,18 @@ No task list; no "agent 1 do X, agent 2 do Y."
 
 - **Explicit markers** — e.g. "high priority" paths, "fragile" areas, "do not change." Swarm reads these as strong attraction or exclusion.
 - **Convention** — e.g. comments or a small config file (.bmo/swarm.yaml, priority_paths, forbidden_paths).
-- **Nudge** — One-shot "add strong pheromone here" so the human can say "look here" without assigning a task.
+- **Nudge** — One-shot "deposit strong signal here" so the human can say "look here" without assigning a task.
 
 ## 3. Observability
 
-- **Environment view** — Pheromone map (strength by location/kind), current claims, repo snapshot summary (failures, lint).
-- **Per-decision rationale** — "Agent A chose P because: high needs_review, no other claim, high relevance." Explain in terms of sensed env + rule weights.
+- **Environment view** — Signal map (strength by zone/kind), current claims, repo snapshot summary (failures, lint).
+- **Per-decision rationale** — "Agent A chose Z because: high needs_review, no other claim, high relevance." Explain in terms of sensed env + rule weights.
 - **Convergence** — Clear "swarm thinks done" (e.g. quiet threshold, goal predicate) and what that predicate is.
 
 ## 4. Control points
 
 - **Pause / resume** — Freeze swarm; inspect env and code; resume.
-- **Override pheromones** — "Ignore this area" or "Focus only here" via config or one-shot nudge.
+- **Override signals** — "Ignore this area" or "Focus only here" via config or one-shot nudge.
 - **Constraint change** — Update goal/scope/constraints; re-seed or restart.
 - **Accept / reject outcome** — Review diff or summary; accept or reject. Reject → re-run with different intent or add nudge. When the swarm stops with partial work done, see **06-failure-and-recovery** for representing outcome (env snapshot + goal status) so the human can accept, reject, or re-seed.
 

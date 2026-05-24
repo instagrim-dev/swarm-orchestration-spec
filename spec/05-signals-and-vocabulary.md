@@ -1,15 +1,15 @@
 # Signals and Vocabulary
 
-**Document version:** 1.0  
-**Date:** 2025-03-15
+**Document version:** 1.1  
+**Date:** 2026-05-24
 
 ## Purpose
 
-A shared vocabulary enables interoperability between implementations, consistent terminology in documentation and tooling, and safe extension without name collisions. This document defines normative terms for pheromone kinds, goal dimensions (Classifier), and genome fields, plus a minimal extension policy so implementations can add terms without fragmenting the spec.
+A shared vocabulary enables interoperability between implementations, consistent terminology in documentation and tooling, and safe extension without name collisions. This document defines normative terms for signal kinds, goal dimensions (Classifier), and genome fields, plus a minimal extension policy so implementations can add terms without fragmenting the spec.
 
-## Pheromone kinds
+## Signal kinds
 
-Agents and the environment use **kinds** to label deposits in the pheromone map (see [03-true-full-swarm](03-true-full-swarm.md)). Each kind has a one-line semantics for how agents should interpret strength at a location.
+Agents and the environment use **kinds** to label deposits in the signal map (see [03-true-full-swarm](03-true-full-swarm.md)). Each kind has a one-line semantics for how agents should interpret strength at a zone.
 
 ### Normative kinds
 
@@ -17,20 +17,52 @@ Implementations that claim alignment with this spec should support at least thes
 
 | Kind | Semantics |
 |------|-----------|
-| `needs_review` | Work at this location should attract reviewer-like behavior (e.g. after a change or failed check). |
-| `recent_activity` | Location was recently touched; agents may use this for separation (avoid crowding) or recency weighting. |
-| `high_priority` | Human or system marked this location as priority; strong attraction for agents seeking work. |
+| `needs_review` | Work at this zone should attract reviewer-like behavior (e.g. after a change or failed check). |
+| `recent_activity` | Zone was recently touched; agents may use this for separation (avoid crowding) or recency weighting. |
+| `high_priority` | Human or system marked this zone as priority; strong attraction for agents seeking work. |
 | `fragile` | Area is sensitive or error-prone; attract careful or review behavior rather than heavy mutation. |
-| `do_not_change` | Exclusion; agents should not select this location for work. |
+| `do_not_change` | Exclusion; agents should not select this zone for work. |
+
+### Substrate binding
+
+When using the [Agent Coordination Substrate](https://github.com/instagrim-dev/agent-coordination-substrate) advisory layer, these kinds map directly to the `kind` field in the substrate's signal envelope schema:
+
+```json
+{
+  "zone": "internal/auth/",
+  "kind": "fragile",
+  "actor": "monitor-agent",
+  "lineage": "session-001",
+  "strength_milli": 800,
+  "ttl_seconds": 7200
+}
+```
+
+The substrate does not define normative kinds — it provides the envelope. This spec defines the **application-level vocabulary** that populates that envelope.
 
 ### Extensible kinds
 
-Implementations may define additional pheromone kinds. To avoid collisions:
+Implementations may define additional signal kinds. To avoid collisions:
 
-- Use a prefix or namespace (e.g. `x-` for experimental, or an implementation-specific prefix such as `bmo-`, `anthills-`).
+- Use a prefix or namespace (e.g. `x-` for experimental, or an implementation-specific prefix).
 - Document custom kinds when describing spec alignment or interoperability.
 
 Normative kinds must not be redefined with different semantics.
+
+### Vocabulary mapping (v1.0 → v1.1)
+
+For continuity with v1.0 of this spec, the following terminology mapping applies:
+
+| v1.0 term | v1.1 term | Rationale |
+|-----------|-----------|-----------|
+| Pheromone | Signal | Engineering-native; matches substrate vocabulary |
+| Pheromone map | Signal map | Consistent with signal deposit semantics |
+| Pheromone kind | Signal kind | Same |
+| Location | Zone | Matches substrate zone-scoped addressing |
+| Strength (float) | Strength (milli-integer) | Substrate uses `strength_milli` (integer, 1000 = full) |
+| Evaporation/decay | Mortality/TTL | Substrate uses time-to-live expiry, not decay rate |
+
+Both terminologies remain understood for backward compatibility; v1.1 normative text uses the right column.
 
 ## Goal dimensions (Classifier)
 
@@ -58,7 +90,19 @@ The genome is the parameterized representation of orchestration (see [02-adaptiv
 | `topology` | `single` \| `star` \| `fan_out` | Shape of agent layout: one agent, lead plus members, or parallel fan-out. |
 | `conflict_strategy` | `first_claim` \| `compete` \| `merge` | How overlapping work is resolved: first-come-wins, competitive selection (e.g. arena), or merge reconciliation. |
 | `isolation` | `shared` \| `worktree` | Whether agents share one workspace or get isolated worktrees/branches. |
-| `coordinator_style` | `none` \| `central` | No central coordinator (e.g. stigmergy) vs. an explicit lead or decomposer. |
+| `coordinator_style` | `none` \| `central` | No central coordinator (e.g. environment-mediated) vs. an explicit lead or decomposer. |
+
+### Conflict strategy and claims
+
+The `conflict_strategy` genome field determines how the enforcement layer (claims) is used:
+
+| Strategy | Claim behavior |
+|----------|---------------|
+| `first_claim` | Hard exclusive claim; second acquire attempt is rejected (`ConflictError`). |
+| `compete` | Soft claims or arena selection; multiple agents may work, best result wins. |
+| `merge` | No exclusive claims; agents work in parallel and a reconciler merges results. |
+
+When using the substrate's enforcement layer, `first_claim` maps to hard claims, `compete` maps to soft claims, and `merge` may bypass claims entirely.
 
 ### Extension policy
 
