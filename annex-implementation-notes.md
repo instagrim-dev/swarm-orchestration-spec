@@ -19,7 +19,7 @@ Implementations of this swarm orchestration spec that use the substrate get form
 
 - **Signal Fabric** — BMO's `internal/signalfabric` implements the substrate advisory layer: mortal signals with zone-scoped deposit, strength, kind, TTL, and zone pressure readout. This directly realizes the SignalMap from §03.
 
-- **Workspace Claims** — BMO's `internal/workspaceclaim` implements the substrate enforcement layer: exclusive hard claims with actor identity, TTL, and operator override. This directly realizes the Claims from §03.
+- **Workspace Claims** — BMO session path claims live in `internal/workspaceclaim` (T1: process-local negotiation, including hard mode, actor identity, TTL, and operator override). Cross-process hard path arbitration is the T2 shared-path mirror in `internal/runtimeclaim` (durable SQLite rows). Together they realize the Claims from §03; T1 alone is not the durable cross-process gate.
 
 - **Adaptive orchestration** — BMO's adaptive context and orchestration genome (`internal/orchestrate/adaptive/`) maps to the Classifier/Shaper/Monitor from §02. The genome parameterizes topology, conflict strategy, and isolation.
 

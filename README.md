@@ -4,7 +4,7 @@ A technical specification for environment-mediated and adaptive multi-agent orch
 
 **Status:** v1.1 — additive alignment with [Agent Coordination Substrate](https://github.com/instagrim-dev/agent-coordination-substrate).  
 **First published:** 2025-03-15.  
-**Last updated:** 2026-05-24.
+**Last updated:** 2026-11-23.
 
 ## Relationship to Agent Coordination Substrate
 
@@ -16,7 +16,7 @@ The [Agent Coordination Substrate](https://github.com/instagrim-dev/agent-coordi
 |-------|------|---------|
 | Primitives | Agent Coordination Substrate | Signals, claims, zones, induction |
 | Orchestration patterns | **This spec** | Topology, meta-orchestrator, convergence, human interface |
-| Domain profiles | [Idle-Gated Compaction Swarm](https://github.com/instagrim-dev/agent-coordination-substrate) (forthcoming) | Domain-specific application of patterns + primitives |
+| Domain profiles | [Idle-gated compaction swarm](https://github.com/instagrim-dev/compaction-swarm-spec) draft **0.2** (tag `v0.2.0`, cite `compaction-swarm-spec` / `0.2`) | Domain-specific application of patterns + primitives |
 
 ## Contents
 
